@@ -111,7 +111,40 @@ class ZipZipTree:
 		self.size += 1
 
 	def remove(self, key: KeyType):
-		pass
+		key_x = key
+		cur = self.root
+		prev = None
+		while key != cur.key:
+			prev = cur
+			cur = cur.left if key < cur.key else cur.right
+		left = cur.left
+		right = cur.right
+		if left is None:
+			cur = right
+		elif right is None:
+			cur = left
+		elif right.rank <= left.rank:
+			cur = left
+		else:
+			cur = right
+		if self.root.key == key_x:
+			self.root = cur
+		elif key_x < prev.key:
+			prev.left = cur
+		else:
+			prev.right = cur
+		while left is not None and right is not None:
+			if right.rank <= left.rank:
+				while left is not None and right.rank <= left.rank:
+					prev = left
+					left = left.right
+				prev.right = right
+			else:
+				while right is not None and left.rank < right.rank:
+					prev = right
+					right = right.left
+				prev.left = left
+		self.size -= 1
 
 	def find(self, key: KeyType) -> ValType:
 		return self._find(self.root, key)
