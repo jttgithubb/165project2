@@ -84,7 +84,20 @@ def zip_tree_tests():
 
 	print(f'random geometric rank mean: {geometric_rank_mean}, Expected: ~1')
 
-	# add new tests...
+	# Remove 0 test on data 1
+	tree.remove(0)
+	print(f'\nget_size(): {tree.get_size()}, Expected: 4')
+	print(f'get_height(): {tree.get_height()}, Expected: 2')
+	print(f'get_depth(2): {tree.get_depth(2)}, Expected: 0')
+	print(f'get_depth(1): {tree.get_depth(1)}, Expected: 1')
+
+	# Remove all from data 1
+	tree.remove(1)
+	tree.remove(2)
+	tree.remove(4)
+	print(f'\nfind(5): {tree2.find(5)}, Expected: b')
+	print(f'get_size(): {tree.get_size()}, Expected: 1')
+	print(f'get_height(): {tree.get_height()}, Expected: 0')
 
 def bin_packing_tests():
 	print('\ntesting bin packing\ntest 1')
