@@ -43,6 +43,8 @@ class ZipZipNode:
 		self.right = None
 	
 	def __eq__(self, other: ZipZipNode) -> bool:
+		if other is None:
+			return False
 		return self.key == other.key and self.val == other.val and self.rank == other.rank
 		
 class ZipZipTree:
@@ -53,11 +55,9 @@ class ZipZipTree:
 		self.root = None
 
 	def get_random_rank(self) -> Rank:
-		rand_rank = Rank()
 		r1 = generate_geometric_rank()
-		r2 = rand.randint(0, math.log(self.capacity)**3 - 1)
-		rand_rank.geometric_rank = r1
-		rand_rank.uniform_rank = r2
+		r2 = rand.randint(0, int(math.log(self.capacity)**3) - 1)
+		rand_rank = Rank(r1, r2)
 		return rand_rank
 
 	def insert(self, key: KeyType, val: ValType, rank: Rank = None):
@@ -73,7 +73,7 @@ class ZipZipTree:
 		key_x = node_x.key
 		cur = self.root
 		prev = None
-		while cur is not None and (rank_x < cur.rank or (rank_x == cur.rank and key_x < cur.key)):
+		while cur is not None and (rank_x < cur.rank or (rank_x == cur.rank and key_x > cur.key)):
 			prev = cur
 			cur = cur.left if key_x < cur.key else cur.right
 		if cur == self.root:
@@ -86,6 +86,7 @@ class ZipZipTree:
 		if cur == None:
 			node_x.left = None
 			node_x.right = None
+			self.size += 1
 			return
 		if key_x < cur.key:
 			node_x.right = cur
@@ -103,25 +104,60 @@ class ZipZipTree:
 				while cur is not None and key_x <= cur.key:
 					prev = cur
 					cur = cur.left
-			if fix.key > key_x or (fix == node_x and key_x < prev.key):
+			if fix.key > key_x or (fix == node_x and prev.key > key_x):
 				fix.left = cur
 			else:
 				fix.right = cur
+		self.size += 1
 
 	def remove(self, key: KeyType):
 		pass
 
 	def find(self, key: KeyType) -> ValType:
-		pass
+		return self._find(self.root, key)
+	
+	def _find(self, node: ZipZipNode, key: KeyType) -> ValType:
+		if node is None:
+			return None
+		if node.key == key:
+			return node.val
+		if key < node.key:
+			return self._find(node.left, key)
+		return self._find(node.right, key)
 
 	def get_size(self) -> int:
 		return self.size
 
 	def get_height(self) -> int:
-		return self.height
+		return self._height(self.root)
+	
+	def _height(self, node: ZipZipNode) -> int:
+		if node is None:
+			return -1
+		left_height = self._height(node.left)
+		right_height = self._height(node.right)
+		return max(left_height, right_height) + 1
 
 	def get_depth(self, key: KeyType):
-		pass
+		return self._depth(self.root, key, 0)
+
+	def _depth(self, node: ZipZipNode, key: KeyType, depth: int) -> int:
+		if node is None:
+			return -1
+		if node.key == key:
+			return depth
+		if key < node.key:
+			return self._depth(node.left, key, depth + 1)
+		return self._depth(node.right, key, depth + 1)
+	
+	def inorder_traversal(self):
+		def _inorder_traversal(node):
+			if node:
+				_inorder_traversal(node.left)
+				print(node.key, node.val, node.rank, end=", ")
+				_inorder_traversal(node.right)
+		_inorder_traversal(self.root)
+		print()
 
 	# feel free to define new methods in addition to the above
 	# fill in the definitions of each required member function (above),
