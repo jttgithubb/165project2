@@ -1,6 +1,7 @@
 # Example file: next_fit.py
-import decimal as dec
 # explanations for member functions are provided in requirements.py
+
+import decimal as dec
 
 def next_fit(items: list[float], assignment: list[int], free_space: list[float]):
 	n = len(items)
