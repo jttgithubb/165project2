@@ -3,12 +3,19 @@ import decimal as dec
 # explanations for member functions are provided in requirements.py
 
 def next_fit(items: list[float], assignment: list[int], free_space: list[float]):
-	pass
+	n = len(items)
+	free_space.append(1.0)
+	for i in range (n):
+		item_f = items[i]
+		item_d = dec.Decimal('{:.2f}'.format(item_f))  # item size
+		bin_space_d = dec.Decimal('{:.2f}'.format(free_space[-1]))  # available space in last bin
+		if item_d <= bin_space_d:  # if item fits in last bin
+			assignment[i] = len(free_space) - 1
+			# update the free space of the last bin precisely
+			free_space[-1] = float(bin_space_d - item_d)
+		else:  # if item does not fit in last bin
+			free_space.append(1.0)
+			assignment[i] = len(free_space) - 1
+			bin_space_d = dec.Decimal('{:.2f}'.format(free_space[-1]))  # available space in last bin that was added
+			free_space[-1] = float(bin_space_d - item_d)
 
-if __name__ == '__main__':
-	a = dec.Decimal('0.1')
-	b = dec.Decimal('0.2')
-	c = dec.Decimal('0.3')
-	print('a+b = ', a + b)
-	print('c = ', c)
-	print('does a+b == c? ', a + b == c)
