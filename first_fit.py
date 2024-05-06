@@ -18,7 +18,7 @@ def first_fit(items: list[float], assignment: list[int], free_space: list[float]
     bins_tree.inorder_traversal()
 
 
-    item_f = 1.0
+    item_f = 3.1
     item_d = dec.Decimal('{:.2f}'.format(item_f))  # get item size
     # function to find the node that will hold the item or None then insert a new node to hold the item
     bin_found = bins_tree.find_bin(bins_tree.root, item_d)

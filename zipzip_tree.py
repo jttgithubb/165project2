@@ -238,15 +238,16 @@ class ZipZipTree:
 		if left is not None:
 			left_bVal_d = dec.Decimal('{:.2f}'.format(left.bVal)) 
 			if left_bVal_d >= size:
-				return self._find_bin(left, size)  # go left 
+				return self._find_bin(left, size)  # go left
+		#  check myself
+		node_val_d = dec.Decimal('{:.2f}'.format(node.val))
+		if node_val_d >= size:
+			return node
 		else:
-			#  check myself
-			node_val_d = dec.Decimal('{:.2f}'.format(node.val))
-			if node_val_d >= size:
-				return node
-			else:
-				right = node.right
+			right = node.right
+			if right is not None:
 				return self._find_bin(right, size)  # go right
+			return None
 
 			
 
