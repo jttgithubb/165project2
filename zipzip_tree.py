@@ -44,6 +44,29 @@ class ZipZipNode:
 		self.left = None
 		self.right = None
 	
+	def update_node(self):
+		if self.left is not None and self.right is not None:
+			left_d = dec.Decimal('{:.2f}'.format(self.left.bVal))
+			right_d = dec.Decimal('{:.2f}'.format(self.right.bVal))
+			cur_d = dec.Decimal('{:.2f}'.format(self.val))
+			maximum = max([left_d, right_d, cur_d])
+			self.bVal = float(maximum)
+		elif self.left is not None and self.right is None:
+			left_d = dec.Decimal('{:.2f}'.format(self.left.bVal))
+			cur_d = dec.Decimal('{:.2f}'.format(self.val))
+			maximum = max([left_d, cur_d])
+			self.bVal = float(maximum)
+		elif self.left is None and self.right is not None:
+			right_d = dec.Decimal('{:.2f}'.format(self.right.bVal))
+			cur_d = dec.Decimal('{:.2f}'.format(self.val))
+			maximum = max([right_d, cur_d])
+			self.bVal = float(maximum)
+		else:
+			self.bVal = self.val
+
+	def __repr__(self):
+		return f'[Node: {self.key}, {self.val}, {self.bVal}, {self.rank}]'
+	
 	def __eq__(self, other: ZipZipNode) -> bool:
 		if other is None:
 			return False
@@ -189,7 +212,7 @@ class ZipZipTree:
 		def _inorder_traversal(node):
 			if node:
 				_inorder_traversal(node.left)
-				print(node.key, node.val, node.rank, end=", ")
+				print(node.key, node.val, node.rank, node.bVal, node.left, node.right, end="\n")
 				_inorder_traversal(node.right)
 		_inorder_traversal(self.root)
 		print()
@@ -198,20 +221,36 @@ class ZipZipTree:
 		self._update_nodes(self.root)
 
 	def _update_nodes(self, node: ZipZipNode):
-		if node is None:
-			return -1.0
-		else:
-			left = self._update_nodes(node.left)
-			left_d = dec.Decimal('{:.2f}'.format(left))
-			right = self._update_nodes(node.right)
-			right_d = dec.Decimal('{:.2f}'.format(right))
-			cur = node.val
-			cur_d = dec.Decimal('{:.2f}'.format(cur))
-			node.bVal = float(max(left_d, right_d, cur_d))
-			return node.bVal
+		if node:
+			self._update_nodes(node.left)
+			self._update_nodes(node.right)
+			node.update_node()
+			print(node)
 	
 	def get_bestCapacity(self, node: ZipZipNode):
 		return node.bVal
+	
+	def find_bin(self, start: ZipZipNode, size: dec.Decimal):
+		return self._find_bin(self.root, size)
+	
+	def _find_bin(self, node: ZipZipNode, size: dec.Decimal):
+		left = node.left
+		if left is not None:
+			left_bVal_d = dec.Decimal('{:.2f}'.format(left.bVal)) 
+			if left_bVal_d >= size:
+				return self._find_bin(left, size)  # go left 
+		else:
+			#  check myself
+			node_val_d = dec.Decimal('{:.2f}'.format(node.val))
+			if node_val_d >= size:
+				return node
+			else:
+				right = node.right
+				return self._find_bin(right, size)  # go right
+
+			
+
+		
 		
 
 	# feel free to define new methods in addition to the above
