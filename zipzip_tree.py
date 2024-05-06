@@ -7,6 +7,7 @@ from typing import TypeVar
 from dataclasses import dataclass
 import random as rand
 import math
+import decimal as dec
 
 KeyType = TypeVar('KeyType')
 ValType = TypeVar('ValType')
@@ -36,8 +37,9 @@ class Rank:
 		
 class ZipZipNode:
 	def __init__(self, key: KeyType, val: ValType):
-		self.key = key
-		self.val = val
+		self.key = key  
+		self.val = val  
+		self.bVal = None
 		self.rank = None
 		self.left = None
 		self.right = None
@@ -191,6 +193,26 @@ class ZipZipTree:
 				_inorder_traversal(node.right)
 		_inorder_traversal(self.root)
 		print()
+
+	def update_nodes(self):  # updates the best capacity of each node after removals and insertions
+		self._update_nodes(self.root)
+
+	def _update_nodes(self, node: ZipZipNode):
+		if node is None:
+			return -1.0
+		else:
+			left = self._update_nodes(node.left)
+			left_d = dec.Decimal('{:.2f}'.format(left))
+			right = self._update_nodes(node.right)
+			right_d = dec.Decimal('{:.2f}'.format(right))
+			cur = node.val
+			cur_d = dec.Decimal('{:.2f}'.format(cur))
+			node.bVal = float(max(left_d, right_d, cur_d))
+			return node.bVal
+	
+	def get_bestCapacity(self, node: ZipZipNode):
+		return node.bVal
+		
 
 	# feel free to define new methods in addition to the above
 	# fill in the definitions of each required member function (above),
