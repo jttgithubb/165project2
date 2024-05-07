@@ -1,5 +1,6 @@
 import decimal as dec
 from zipzip_tree import ZipZipTree, Rank
+from hybrid_sort1 import hybrid_sort1
 
 def first_fit(items: list[float], assignment: list[int], free_space: list[float]):
     # initialize our tree structure of bins
@@ -9,7 +10,6 @@ def first_fit(items: list[float], assignment: list[int], free_space: list[float]
     free_space.append(1.0)
     new_bin_id = 0
     bins_tree.insert(new_bin_id, 1.0)
-    bins_tree.update_nodes()
 
     for i in range(n):
         item_f = items[i]
@@ -20,7 +20,9 @@ def first_fit(items: list[float], assignment: list[int], free_space: list[float]
             bin_cap_f = bin_found.val
             bin_cap_d = dec.Decimal('{:.2f}'.format(bin_cap_f))
             bin_found.val = float(bin_cap_d - item_d)
-            bins_tree.update_nodes()
+            #bins_tree.update_nodes()
+            bins_tree._update_nodes(bin_found)
+            bins_tree._update_nodes2(bins_tree.root, bin_found.key)
             assignment[i] = bin_found.key
             free_space[bin_found.key] = float(dec.Decimal('{:.2f}'.format(free_space[bin_found.key])) - item_d)
         else:
@@ -30,10 +32,14 @@ def first_fit(items: list[float], assignment: list[int], free_space: list[float]
             bin_cap_f = float(bin_cap_d)
             assignment[i] = new_bin_id
             free_space.append(bin_cap_f)
-            bins_tree.insert(new_bin_id, bin_cap_f)
-            bins_tree.update_nodes()
+            new_node = bins_tree.insert(new_bin_id, bin_cap_f)
+            #bins_tree.update_nodes()
+            bins_tree._update_nodes(new_node)
+            bins_tree._update_nodes2(bins_tree.root, new_bin_id)
+
 
 
 def first_fit_decreasing(items: list[float], assignment: list[int], free_space: list[float]):
-    items.sort(reverse= True)
+    hybrid_sort1(items)
+    items = items[::-1]
     first_fit(items, assignment, free_space)

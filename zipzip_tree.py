@@ -35,6 +35,14 @@ class Rank:
 		else:
 			return False
 		
+	def __le__(self, other: Rank) -> bool:
+		if self.geometric_rank < other.geometric_rank:
+			return True
+		elif self.geometric_rank == other.geometric_rank:
+			return self.uniform_rank <= other.uniform_rank
+		else:
+			return False
+		
 class ZipZipNode:
 	def __init__(self, key: KeyType, val: ValType):
 		self.key = key  
@@ -88,6 +96,7 @@ class ZipZipTree:
 	def insert(self, key: KeyType, val: ValType, rank: Rank = None):
 		# Initialize new node with key, value, and rank
 		node_x = ZipZipNode(key, val)
+		node_x.bVal = val
 		if rank is None:
 			rank_x = self.get_random_rank()
 			node_x.rank = rank_x
@@ -134,16 +143,23 @@ class ZipZipTree:
 			else:
 				fix.right = cur
 		self.size += 1
+		return node_x
 
 	def remove(self, key: KeyType):
 		key_x = key
 		cur = self.root
 		prev = None
+		removed_node = None
 		while key != cur.key:
 			prev = cur
 			cur = cur.left if key < cur.key else cur.right
 		left = cur.left
 		right = cur.right
+
+		removed_node = cur  # record the removed node
+		removed_node.left = None
+		removed_node.right = None
+
 		if left is None:
 			cur = right
 		elif right is None:
@@ -170,6 +186,7 @@ class ZipZipTree:
 					right = right.left
 				prev.left = left
 		self.size -= 1
+		return removed_node
 
 	def find(self, key: KeyType) -> ValType:
 		return self._find(self.root, key)
@@ -217,19 +234,32 @@ class ZipZipTree:
 		_inorder_traversal(self.root)
 		print()
 
-	def update_nodes(self):  # updates the best capacity of each node after removals and insertions
+	def update_nodes(self):  # updates ALL NODES
 		self._update_nodes(self.root)
 
-	def _update_nodes(self, node: ZipZipNode):
+	def _update_nodes(self, node: ZipZipNode):  # updates nodes BELOW a certain node
 		if node:
 			self._update_nodes(node.left)
 			self._update_nodes(node.right)
 			node.update_node_bc()
 	
+	def _update_nodes2(self, start: ZipZipNode, key: KeyType):  # updates nodes ABOVE a certain node
+		if start.key == key:
+			return start.bVal
+		elif start.key > key:
+			left_bVal = self._update_nodes2(start.left, key)  # go left
+			start.bVal = max([dec.Decimal('{:.2f}'.format(left_bVal)), dec.Decimal('{:.2f}'.format(start.right.bVal)) if start.right is not None else dec.Decimal('0.0'), dec.Decimal('{:.2f}'.format(start.val))])
+			return start.bVal
+		else:
+			right_bVal = self._update_nodes2(start.right, key)  # go right
+			start.bVal = max([dec.Decimal('{:.2f}'.format(start.left.bVal)) if start.left is not None else dec.Decimal('0.0'), dec.Decimal('{:.2f}'.format(right_bVal)), dec.Decimal('{:.2f}'.format(start.val))])
+			return start.bVal
+		
+	
 	def get_bestCapacity(self, node: ZipZipNode):
 		return node.bVal
 	
-	def find_bin(self, start: ZipZipNode, size: dec.Decimal):
+	def find_bin(self, start: ZipZipNode, size: dec.Decimal):  # finds bin of first fit
 		return self._find_bin(self.root, size)
 	
 	def _find_bin(self, node: ZipZipNode, size: dec.Decimal):
@@ -248,7 +278,47 @@ class ZipZipTree:
 				return self._find_bin(right, size)  # go right
 			return None
 
-			
+	def find_bin2(self, start: ZipZipNode, size: dec.Decimal):  # finds bin of best fit
+		return self._find_bin2(self.root, size)
+	
+	def _find_bin2(self, node: ZipZipNode, size: dec.Decimal):
+		# two cases for root: large enough to hold or not
+  		#  1. root is large enough
+		#     - if left exists and is large enough , go left
+		#     - if left exists and is not large enough, use current
+		#     - if left does not exists, use current
+  		#  2. cur is not large enough
+		#     - if right exists and is large enough, go right
+		#     - if right exists and is not large enough, go right
+		#     - if right does not exists, return None
+		curr_cap_f = node.key
+		curr_cap_d = dec.Decimal('{:.2f}'.format(curr_cap_f))
+		if curr_cap_d >= size:
+			if node.left is not None:
+				left_cap_f = node.left.key
+				left_cap_f = dec.Decimal('{:.2f}'.format(left_cap_f))
+				if left_cap_f >= size:
+					return self._find_bin2(node.left, size)  # go left
+			return node # use current
+		else:
+			if node.right is not None:
+				return self._find_bin2(node.right, size)  # go right
+			return None  # no bin can contain this size
+	
+	def capacity_exist(self, key: dec.Decimal):  # checks if capacity key exists in the tree
+		return self._capacity_exist(self.root, key)
+	
+	def _capacity_exist(self, node: ZipZipNode, key: KeyType):
+		if node is None:
+			return False
+		node_key_d = dec.Decimal('{:.2f}'.format(node.key))  # node.key decimal
+		if node_key_d == key:
+			return True
+		elif node_key_d > key:
+			return self._capacity_exist(node.left, key)  # go left
+		else:
+			return self._capacity_exist(node.right, key)  # go right
+	
 
 		
 		
