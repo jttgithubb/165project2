@@ -13,13 +13,13 @@ def best_fit(items: list[float], assignment: list[int], free_space: list[float])
 
     for i in range(n):
         item_f = items[i]
-        item_d = dec.Decimal('{:.2f}'.format(item_f))  # get item size
+        item_d = dec.Decimal('{:.10f}'.format(item_f))  # get item size
         # function to find the node that will BEST hold the item or None then insert a new node to hold the item
         bin_found = bins_tree.find_bin2(bins_tree.root, item_d)
         if bin_found is not None:  # place item in bin and update the tree
             bin_key = bin_found.key
             bin_found = bins_tree.remove(bin_key) # remove bin from the tree
-            new_key_d = dec.Decimal('{:.2f}'.format(free_space[bin_found.val])) - item_d
+            new_key_d = dec.Decimal('{:.10f}'.format(free_space[bin_found.val])) - item_d
             assignment[i] = bin_found.val
             new_key_f = float(new_key_d)
             free_space[bin_found.val] = new_key_f
@@ -31,7 +31,7 @@ def best_fit(items: list[float], assignment: list[int], free_space: list[float])
         else:
             new_bin_id += 1
             assignment[i] = new_bin_id
-            new_bin_cap_d = dec.Decimal('{:.2f}'.format(new_bin_cap)) - item_d
+            new_bin_cap_d = dec.Decimal('{:.10f}'.format(new_bin_cap)) - item_d
             # ensure no ties by subtracting 0.01 until unique key is found and can be inserted
             '''while (bins_tree.capacity_exist(new_bin_cap_d)):
                 new_bin_cap_d = new_bin_cap_d - dec.Decimal('0.01')'''
