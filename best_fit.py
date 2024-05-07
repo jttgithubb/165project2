@@ -1,5 +1,6 @@
 import decimal as dec
 from zipzip_tree import ZipZipTree, Rank
+from hybrid_sort1 import hybrid_sort1
 
 def best_fit(items: list[float], assignment: list[int], free_space: list[float]):
     # intialize the tree structure of bins
@@ -15,8 +16,6 @@ def best_fit(items: list[float], assignment: list[int], free_space: list[float])
         item_d = dec.Decimal('{:.2f}'.format(item_f))  # get item size
         # function to find the node that will BEST hold the item or None then insert a new node to hold the item
         bin_found = bins_tree.find_bin2(bins_tree.root, item_d)
-        #print('bin found: ', bin_found)
-        #bins_tree.inorder_traversal()
         if bin_found is not None:  # place item in bin and update the tree
             bin_key = bin_found.key
             bin_found = bins_tree.remove(bin_key) # remove bin from the tree
@@ -40,9 +39,9 @@ def best_fit(items: list[float], assignment: list[int], free_space: list[float])
             new_bin_cap_f = float(new_bin_cap_d)
             free_space.append(new_bin_cap_f)
             bins_tree.insert(new_bin_cap_f, new_bin_id)  # insert new bin
-    #print('assignments: ', assignment)
-    #print('free space: ', free_space)
 
             
 def best_fit_decreasing(items: list[float], assignment: list[int], free_space: list[float]):
-    pass
+    hybrid_sort1(items)
+    items = items[::-1]
+    best_fit(items, assignment, free_space)
