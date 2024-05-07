@@ -130,12 +130,12 @@ class ZipZipTree:
 		# prev holds inserted node x, curr holds the node below x that must be unzipped
 		while cur is not None:
 			fix = prev
-			if cur.key < key_x:
+			if cur.key <= key_x:
 				while cur is not None and cur.key <= key_x:
 					prev = cur
 					cur = cur.right
 			else:
-				while cur is not None and key_x <= cur.key:
+				while cur is not None and key_x < cur.key:
 					prev = cur
 					cur = cur.left
 			if fix.key > key_x or (fix == node_x and prev.key > key_x):
@@ -156,9 +156,9 @@ class ZipZipTree:
 		left = cur.left
 		right = cur.right
 
-		removed_node = cur  # record the removed node
-		removed_node.left = None
-		removed_node.right = None
+		removed_node = ZipZipNode(cur.key, cur.val)  # record the removed node
+		removed_node.bVal = cur.bVal
+		removed_node.rank = cur.rank
 
 		if left is None:
 			cur = right
@@ -291,6 +291,8 @@ class ZipZipTree:
 		#     - if right exists and is large enough, go right
 		#     - if right exists and is not large enough, go right
 		#     - if right does not exists, return None
+		if node is None:
+			return None
 		curr_cap_f = node.key
 		curr_cap_d = dec.Decimal('{:.2f}'.format(curr_cap_f))
 		if curr_cap_d >= size:
@@ -299,7 +301,13 @@ class ZipZipTree:
 				left_cap_f = dec.Decimal('{:.2f}'.format(left_cap_f))
 				if left_cap_f >= size:
 					return self._find_bin2(node.left, size)  # go left
-			return node # use current
+				potential_node = self._find_bin2(node.left.right, size)  #  potential node in between a key that cant hold and key that can hold
+				if potential_node is None:
+					return node
+				return potential_node
+			else:
+				return node
+			#return node # use current
 		else:
 			if node.right is not None:
 				return self._find_bin2(node.right, size)  # go right
