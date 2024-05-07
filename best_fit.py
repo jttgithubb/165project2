@@ -42,6 +42,7 @@ def best_fit(items: list[float], assignment: list[int], free_space: list[float])
 
             
 def best_fit_decreasing(items: list[float], assignment: list[int], free_space: list[float]):
-    hybrid_sort1(items)
-    items = items[::-1]
-    best_fit(items, assignment, free_space)
+    items_list = list(items)
+    hybrid_sort1(items_list)
+    items_list = items_list[::-1]
+    best_fit(items_list, assignment, free_space)
