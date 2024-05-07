@@ -44,7 +44,7 @@ class ZipZipNode:
 		self.left = None
 		self.right = None
 	
-	def update_node(self):
+	def update_node_bc(self):
 		if self.left is not None and self.right is not None:
 			left_d = dec.Decimal('{:.2f}'.format(self.left.bVal))
 			right_d = dec.Decimal('{:.2f}'.format(self.right.bVal))
@@ -224,8 +224,7 @@ class ZipZipTree:
 		if node:
 			self._update_nodes(node.left)
 			self._update_nodes(node.right)
-			node.update_node()
-			print(node)
+			node.update_node_bc()
 	
 	def get_bestCapacity(self, node: ZipZipNode):
 		return node.bVal
