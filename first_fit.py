@@ -15,27 +15,20 @@ def first_fit(items: list[float], assignment: list[int], free_space: list[float]
         item_f = items[i]
         item_d = dec.Decimal('{:.10f}'.format(item_f))  # get item size
         # function to find the node that will hold the item or None then insert a new node to hold the item
-        bin_found = bins_tree.find_bin(bins_tree.root, item_d)
+        bin_found = bins_tree.find_bin(item_d)
         if bin_found is not None:  # place item in bin and update the tree
-            bin_cap_f = bin_found.val
-            bin_cap_d = dec.Decimal('{:.10f}'.format(bin_cap_f))
-            bin_found.val = float(bin_cap_d - item_d)
-            #bins_tree.update_nodes()
-            bins_tree._update_nodes(bin_found)
-            bins_tree._update_nodes2(bins_tree.root, bin_found.key)
+            bin_found.val -= item_f  # Remove decimal subtraction
+            bin_found.update_node_bc()  # update the immediate subtree
+            bins_tree._update_nodes2(bins_tree.root, bin_found.key)  # update the nodes above node
             assignment[i] = bin_found.key
-            free_space[bin_found.key] = float(dec.Decimal('{:.10f}'.format(free_space[bin_found.key])) - item_d)
+            free_space[bin_found.key] -= item_f  # Remove decimal subtraction
         else:
             new_bin_id += 1
-            bin_cap_f = 1.0
-            bin_cap_d = dec.Decimal('{:.10f}'.format(bin_cap_f)) - item_d
-            bin_cap_f = float(bin_cap_d)
+            new_bin_cap_f = 1.0 - item_f
             assignment[i] = new_bin_id
-            free_space.append(bin_cap_f)
-            new_node = bins_tree.insert(new_bin_id, bin_cap_f)
-            #bins_tree.update_nodes()
-            bins_tree._update_nodes(new_node)
-            bins_tree._update_nodes2(bins_tree.root, new_bin_id)
+            free_space.append(new_bin_cap_f)
+            bins_tree.insert(new_bin_id, new_bin_cap_f)
+            bins_tree._update_nodes2(bins_tree.root, new_bin_id) # update the nodes above node
 
 
 

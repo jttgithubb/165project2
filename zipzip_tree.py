@@ -58,17 +58,28 @@ class ZipZipNode:
 			right_d = dec.Decimal('{:.10f}'.format(self.right.bVal))
 			cur_d = dec.Decimal('{:.10f}'.format(self.val))
 			maximum = max([left_d, right_d, cur_d])
-			self.bVal = float(maximum)
+			if maximum == left_d:
+				self.bVal = self.left.bVal
+			elif maximum == right_d:
+				self.bVal = self.right.bVal
+			else:
+				self.bVal = self.val
 		elif self.left is not None and self.right is None:
 			left_d = dec.Decimal('{:.10f}'.format(self.left.bVal))
 			cur_d = dec.Decimal('{:.10f}'.format(self.val))
 			maximum = max([left_d, cur_d])
-			self.bVal = float(maximum)
+			if maximum == left_d:
+				self.bVal = self.left.bVal
+			else:
+				self.bVal = self.val
 		elif self.left is None and self.right is not None:
 			right_d = dec.Decimal('{:.10f}'.format(self.right.bVal))
 			cur_d = dec.Decimal('{:.10f}'.format(self.val))
 			maximum = max([right_d, cur_d])
-			self.bVal = float(maximum)
+			if maximum == right_d:
+				self.bVal = self.right.bVal
+			else:
+				self.bVal = self.val
 		else:
 			self.bVal = self.val
 
@@ -95,6 +106,8 @@ class ZipZipTree:
 
 	def insert(self, key: KeyType, val: ValType, rank: Rank = None):
 		# Initialize new node with key, value, and rank
+		update_list = []  # used to later update swapped nodes when unzipping
+	
 		node_x = ZipZipNode(key, val)
 		node_x.bVal = val
 		if rank is None:
@@ -121,7 +134,7 @@ class ZipZipTree:
 			node_x.left = None
 			node_x.right = None
 			self.size += 1
-			return
+			return node_x
 		if key_x < cur.key:
 			node_x.right = cur
 		else:
@@ -140,12 +153,19 @@ class ZipZipTree:
 					cur = cur.left
 			if fix.key > key_x or (fix == node_x and prev.key > key_x):
 				fix.left = cur
+				update_list.append(fix)
 			else:
 				fix.right = cur
+				update_list.append(fix)
+		if (isinstance(node_x.bVal, float)):
+			for i in update_list[::-1]:
+				i.update_node_bc()
 		self.size += 1
 		return node_x
 
 	def remove(self, key: KeyType):
+		update_list = []  # used to later update swapped nodes when zipping
+
 		key_x = key
 		cur = self.root
 		prev = None
@@ -180,11 +200,17 @@ class ZipZipTree:
 					prev = left
 					left = left.right
 				prev.right = right
+				update_list.append(prev)
+
 			else:
 				while right is not None and left.rank < right.rank:
 					prev = right
 					right = right.left
 				prev.left = left
+				update_list.append(prev)
+		if (isinstance(removed_node.bVal, float)):  # update the nodes that were zipped
+			for i in update_list[::-1]:
+				i.update_node_bc()
 		self.size -= 1
 		return removed_node
 
@@ -248,21 +274,42 @@ class ZipZipTree:
 			return start.bVal
 		elif start.key > key:
 			left_bVal = self._update_nodes2(start.left, key)  # go left
-			start.bVal = max([dec.Decimal('{:.10f}'.format(left_bVal)), dec.Decimal('{:.10f}'.format(start.right.bVal)) if start.right is not None else dec.Decimal('{:.10f}'.format(0.0)), dec.Decimal('{:.10f}'.format(start.val))])
+			left_bVal_d = dec.Decimal('{:.10f}'.format(left_bVal))
+			right_bVal_d = dec.Decimal('{:.10f}'.format(start.right.bVal)) if start.right is not None else dec.Decimal('{:.10f}'.format(0.0))
+			cur_bVal_d = dec.Decimal('{:.10f}'.format(start.val))
+			max_bVal = max([left_bVal_d, right_bVal_d, cur_bVal_d])
+			if max_bVal == left_bVal_d:
+				start.bVal = left_bVal
+			elif max_bVal == right_bVal_d:
+				start.bVal = start.right.bVal if start.right is not None else 0.0
+			else:
+				start.bVal = start.val
 			return start.bVal
 		else:
 			right_bVal = self._update_nodes2(start.right, key)  # go right
-			start.bVal = max([dec.Decimal('{:.10f}'.format(start.left.bVal)) if start.left is not None else dec.Decimal('{:.10f}'.format(0.0)), dec.Decimal('{:.10f}'.format(right_bVal)), dec.Decimal('{:.10f}'.format(start.val))])
+			left_bVal_d = dec.Decimal('{:.10f}'.format(start.left.bVal)) if start.left is not None else dec.Decimal('{:.10f}'.format(0.0))
+			right_bVal_d = dec.Decimal('{:.10f}'.format(right_bVal))
+			cur_bVal_d = dec.Decimal('{:.10f}'.format(start.val))
+			max_bVal = max([left_bVal_d, right_bVal_d, cur_bVal_d])
+			if max_bVal == left_bVal_d:
+				start.bVal = start.left.bVal if start.left is not None else 0.0
+			elif max_bVal == right_bVal_d:
+				start.bVal = right_bVal
+			else:
+				start.bVal = start.val
 			return start.bVal
 		
 	
 	def get_bestCapacity(self, node: ZipZipNode):
 		return node.bVal
 	
-	def find_bin(self, start: ZipZipNode, size: dec.Decimal):  # finds bin of first fit
+	def find_bin(self, size: dec.Decimal):  # finds bin of first fit
 		return self._find_bin(self.root, size)
 	
 	def _find_bin(self, node: ZipZipNode, size: dec.Decimal):
+		cur_bC_d = dec.Decimal('{:.10f}'.format(node.bVal))
+		if size > cur_bC_d:  # no bin is large enough, immediately return None
+			return None
 		left = node.left
 		if left is not None:
 			left_bVal_d = dec.Decimal('{:.10f}'.format(left.bVal)) 

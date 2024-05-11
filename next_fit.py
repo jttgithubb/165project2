@@ -13,10 +13,9 @@ def next_fit(items: list[float], assignment: list[int], free_space: list[float])
 		if item_d <= bin_space_d:  # if item fits in last bin
 			assignment[i] = len(free_space) - 1
 			# update the free space of the last bin precisely
-			free_space[-1] = float(bin_space_d - item_d)
+			free_space[-1] = free_space[-1] - item_f
 		else:  # if item does not fit in last bin
 			free_space.append(1.0)
 			assignment[i] = len(free_space) - 1
-			bin_space_d = dec.Decimal('{:.10f}'.format(free_space[-1]))  # available space in last bin that was added
-			free_space[-1] = float(bin_space_d - item_d)
+			free_space[-1] = free_space[-1] - item_f
 

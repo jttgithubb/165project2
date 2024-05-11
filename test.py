@@ -10,13 +10,14 @@ if __name__ == "__main__":
     bin found:  None
     0.0 2 Rank(geometric_rank=1, uniform_rank=7) 2 None None'''
 
-    tree = ZipZipTree(12)
-    tree.insert(0.21, 0, Rank(geometric_rank=0, uniform_rank=6))
-    tree.insert(0.0, 1, Rank(geometric_rank=0, uniform_rank=4))
-    tree.insert(0.05, 2, Rank(geometric_rank=1, uniform_rank=7))
+    tree = ZipZipTree(4)
+    tree.insert(0.21, 0)
+    tree.insert(0.21, 1)
+    tree.insert(0.21, 2)
+    tree.insert(0.21, 3)
+    
+
+    
     
     tree.inorder_traversal()
-    tree.remove(0.05)
-    tree.inorder_traversal()
-    tree.insert(0.0, 2, Rank(geometric_rank=1, uniform_rank=7))
-    tree.inorder_traversal()
+    
