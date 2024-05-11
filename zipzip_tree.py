@@ -48,6 +48,7 @@ class ZipZipNode:
 		self.key = key  
 		self.val = val  
 		self.bVal = None
+		self.cap = None
 		self.rank = None
 		self.left = None
 		self.right = None
@@ -178,6 +179,7 @@ class ZipZipTree:
 
 		removed_node = ZipZipNode(cur.key, cur.val)  # record the removed node
 		removed_node.bVal = cur.bVal
+		removed_node.cap = cur.cap
 		removed_node.rank = cur.rank
 
 		if left is None:
@@ -325,7 +327,7 @@ class ZipZipTree:
 				return self._find_bin(right, size)  # go right
 			return None
 
-	def find_bin2(self, start: ZipZipNode, size: dec.Decimal):  # finds bin of best fit
+	def find_bin2(self, size: dec.Decimal):  # finds bin of best fit
 		return self._find_bin2(self.root, size)
 	
 	def _find_bin2(self, node: ZipZipNode, size: dec.Decimal):
@@ -360,6 +362,30 @@ class ZipZipTree:
 				return self._find_bin2(node.right, size)  # go right
 			return None  # no bin can contain this size
 	
+	def find_bin3(self, size: dec.Decimal):  # finds bin of best-fit using a tuple key of (Decimal capacity, int bin_id)
+		return self._find_bin3(self.root, size)
+	
+	def _find_bin3(self, node: ZipZipNode, size: dec.Decimal): 
+		if node is None:
+			return None
+		curr_cap_d = node.key[0]
+		if curr_cap_d >= size:
+			if node.left is not None:
+				left_cap_d = node.left.key[0]
+				if left_cap_d >= size:
+					return self._find_bin3(node.left, size)  # go left
+				potential_node = self._find_bin3(node.left.right, size)  #  potential node in between a key that cant hold and key that can hold
+				if potential_node is None:
+					return node
+				return potential_node
+			else:
+				return node
+			#return node # use current
+		else:
+			if node.right is not None:
+				return self._find_bin3(node.right, size)  # go right
+			return None  # no bin can contain this size
+
 	def capacity_exist(self, key: dec.Decimal):  # checks if capacity key exists in the tree
 		return self._capacity_exist(self.root, key)
 	
