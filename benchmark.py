@@ -33,7 +33,7 @@ def get_waste(items: list[float], free_space: list[float]):
 
 def generate_random_list(size: int):
     a = 0.0 + 1e-10
-    b = 4.0 - 1e-10
+    b = 0.4 - 1e-10
     float_list = []
     for i in range(size):
         num_f = random.uniform(a, b)
