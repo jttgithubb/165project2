@@ -1,6 +1,6 @@
 # Module for benchmarking different bin-packing algorithms on different input sizes n and waste W(A)
 # 1. Enter the algorithm name and number of items
-# 2. Run benchmark and calculate the waste (10 datapoints per size n)
+# 2. Run benchmark and calculate the waste (goal of 50 datapoints per size n)
 # 3. Record in a separate csv file for each algorithm
 
 from next_fit import next_fit
@@ -58,6 +58,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     data_path = get_data_path(args.algorithm)
     with open(data_path, 'a') as f:
-        for i in range(10):
+        for i in range(50):
             size, waste = run_benchmark(PACKING_ALGORITHMS[args.algorithm], args.size)
             f.write(f"{size} {waste}\n")
